@@ -208,14 +208,6 @@ const jsonLd = {
     "Mobile Applications",
     "Cloud Computing"
   ],
-  "sameAs": [
-    "https://www.linkedin.com/company/escstack",
-    "https://github.com/escstack",
-    "https://x.com/EscStack",
-    "https://www.behance.net/escstack",
-
-    // Add Facebook/Twitter if you have them
-  ]
 };
 
 export default function RootLayout({ children }) {

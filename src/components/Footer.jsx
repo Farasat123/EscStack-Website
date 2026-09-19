@@ -58,34 +58,27 @@ export default function Footer() {
                   icon: FaLinkedin,
                   color: "bg-blue-600",
                   label: "LinkedIn",
-                  href: "https://www.linkedin.com/company/escstack",
                 },
                 {
                   icon: FaTwitter,
                   color: "bg-sky-500",
                   label: "Twitter",
-                  href: "https://x.com/EscStack",
                 },
                 {
                   icon: FaGithub,
                   color: "bg-gray-800",
                   label: "GitHub",
-                  href: "https://github.com/escstack",
                 },
                 {
                   icon: FaBehance,
                   color: "bg-blue-700",
                   label: "Behance",
-                  href: "https://www.behance.net/escstack",
                 },
               ].map((social, index) => (
-                <motion.a
+                <motion.div
                   key={index}
                   whileHover={{ y: -5, scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className={`${social.color} text-white p-3 rounded-full hover:opacity-90 transition-opacity relative overflow-hidden group`}
                   aria-label={social.label}
                 >
@@ -94,7 +87,7 @@ export default function Footer() {
                     className="absolute inset-0 bg-white/20 rounded-full scale-0 group-hover:scale-100 transition-transform duration-300"
                     initial={false}
                   />
-                </motion.a>
+                </motion.div>
               ))}
             </div>
           </motion.div>

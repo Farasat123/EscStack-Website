@@ -5,35 +5,27 @@ import Script from 'next/script';
 // We define this here so we can use it for BOTH metadata and JSON-LD Schema
 const founders = [
   {
-    name: "Ayaz Hussain",
+    name: "Farasat Abbas",
     role: "Founder & CEO",
     bio: "Visionary leader driving innovation and strategic growth for the company.",
-    linkedin: "https://www.linkedin.com/in/ayaz-hussain-cs/",
-    github: "https://github.com/ayaz7964",
-    image: "/ayaz.png" // Matches your public folder
+    image: "/Farasat.JPG" // Matches your public folder
   },
   {
     name: "Muhammad Rizwan Rajput",
     role: "Co-Founder & CTO",
     bio: "Technology architect passionate about scalable systems and AI-driven products.",
-    linkedin: "https://www.linkedin.com/in/rajput-rizwan/",
-    github: "https://github.com/rajputrizwan",
     image: "/rizwan.png" // Matches your public folder
   },
   {
     name: "Muhammad Tayyab Bhutto",
     role: "Co-Founder & CPO",
     bio: "Creative mind shaping intuitive user experiences and visionary product design.",
-    linkedin: "https://www.linkedin.com/in/muhammad-tayyab-bhutto/",
-    github: "https://github.com/Muhammad-Tayyab-Bhutto",
     image: "/meer.png" // Note: Ensure this file matches Tayyab (Checked against your JSON)
   },
   {
     name: "Meer Khalil",
     role: "Co-Founder & Chief AI Officer",
     bio: "AI strategist leading intelligent automation and ethical model deployment.",
-    linkedin: "https://www.linkedin.com/in/meer-khalil/",
-    github: "https://github.com/meer-khalil",
     image: "/khalil.png" // Matches your public folder
   }
 ];
@@ -91,10 +83,6 @@ export default function Page() {
       "jobTitle": person.role,
       "description": person.bio,
       "image": `${baseUrl}${person.image}`, // Absolute URL is required for Schema
-      "sameAs": [
-        person.linkedin,
-        person.github
-      ]
     })),
     "numberOfEmployees": {
       "@type": "QuantitativeValue",

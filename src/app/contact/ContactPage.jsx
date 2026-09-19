@@ -246,7 +246,7 @@ export default function ContactPage() {
                   iconColor: "text-green-600 dark:text-green-400",
                   bgColor: "bg-green-100 dark:bg-green-900/30",
                   title: "Call Us",
-                  content: "03163797857",
+                  content: "0310-3573334",
                   description: "Mon, Wed, Fri: 9AM-1PM or 6PM-11PM",
                   delay: 0.2,
                 },
@@ -255,8 +255,8 @@ export default function ContactPage() {
                   iconColor: "text-purple-600 dark:text-purple-400",
                   bgColor: "bg-purple-100 dark:bg-purple-900/30",
                   title: "Visit Us",
-                  content: "House No A 58, Ali Town Lahore",
-                  description: "In front of Youth Inn Hostel, Rawind Road",
+                  content: "Flat 20 First Fllor Al Asif Square, Karachi",
+                  description: "",
                   delay: 0.3,
                 },
                 {
@@ -298,9 +298,11 @@ export default function ContactPage() {
                         <p className="text-gray-600 dark:text-gray-300">
                           {item.content}
                         </p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                          {item.description}
-                        </p>
+                        {item.description && (
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            {item.description}
+                          </p>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -319,28 +321,22 @@ export default function ContactPage() {
                     icon: Linkedin,
                     color: "bg-blue-600",
                     label: "LinkedIn",
-                    href: "https://www.linkedin.com/company/escstack",
                   },
                   {
                     icon: Twitter,
                     color: "bg-sky-500",
                     label: "Twitter",
-                    href: "https://x.com/EscStack",
                   },
                   {
                     icon: Github,
                     color: "bg-gray-800 dark:bg-gray-700",
                     label: "GitHub",
-                    href: "https://github.com/escstack",
                   },
                 ].map((social, index) => (
-                  <motion.a
+                  <motion.div
                     key={index}
                     whileHover={{ y: -5, scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     className={`${social.color} text-white p-3 rounded-full hover:opacity-90 transition-opacity relative overflow-hidden group`}
                     aria-label={social.label}
                   >
@@ -349,7 +345,7 @@ export default function ContactPage() {
                       className="absolute inset-0 bg-white/20 rounded-full scale-0 group-hover:scale-100 transition-transform duration-300"
                       initial={false}
                     />
-                  </motion.a>
+                  </motion.div>
                 ))}
               </div>
             </motion.div>

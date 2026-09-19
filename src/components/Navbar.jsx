@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -13,7 +13,6 @@ import {
   HelpCircle,
   Tag,
   Phone,
-  ChevronDown,
 } from "lucide-react";
 import DarkModeToggle from "./DarkModeToggle";
 
@@ -22,15 +21,13 @@ import DarkModeToggle from "./DarkModeToggle";
  * - Uses next/link for client navigation
  * - Highlights active page (exact or prefix match, e.g. /blog -> /blog/post)
  * - Sticky background when scrolling
- * - Desktop dropdown + mobile menu (close on outside click / Esc)
+ * - All nav links displayed directly in the navbar
  * - No custom CSS (only Tailwind utilities)
  */
 export default function Navbar() {
   const pathname = usePathname() || "/";
   const [isOpen, setIsOpen] = useState(false); // mobile
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
-  const dropdownRef = useRef(null);
 
   // Define your nav (use lowercase route names for consistency)
   const navItems = [
@@ -55,9 +52,6 @@ export default function Navbar() {
       label: "Contact",
       icon: <Phone className="w-4 h-4 mr-2" />,
     },
-  ];
-
-  const moreItems = [
     {
       href: "/careers",
       label: "Careers",
@@ -107,31 +101,22 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close dropdown when clicking outside or pressing Escape
+  // Close mobile menu on Escape key
   useEffect(() => {
-    const onDocClick = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setDropdownOpen(false);
-      }
-    };
     const onKey = (e) => {
       if (e.key === "Escape") {
-        setDropdownOpen(false);
         setIsOpen(false);
       }
     };
-    document.addEventListener("mousedown", onDocClick);
     document.addEventListener("keydown", onKey);
     return () => {
-      document.removeEventListener("mousedown", onDocClick);
       document.removeEventListener("keydown", onKey);
     };
   }, []);
 
-  // close both menus when navigating (attached to Link onClick)
+  // close menu when navigating (attached to Link onClick)
   const handleNavClick = () => {
     setIsOpen(false);
-    setDropdownOpen(false);
   };
 
   return (
@@ -161,9 +146,9 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop links */}
-        <ul className="hidden md:flex items-center space-x-6">
+        <ul className="hidden lg:flex items-center space-x-3">
           {navItems.map((item) => (
-            <li key={item.href} className="group relative">
+            <li key={item.label} className="group relative">
               <Link
                 href={item.href}
                 onClick={handleNavClick}
@@ -187,47 +172,6 @@ export default function Navbar() {
             </li>
           ))}
 
-          {/* Dropdown (More) */}
-          <li className="relative cursor-pointer" ref={dropdownRef}>
-            <button
-              onClick={() => setDropdownOpen((s) => !s)}
-              aria-haspopup="menu"
-              aria-expanded={dropdownOpen}
-              className="flex items-center px-2 py-1 text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white gap-1 cursor-pointer"
-            >
-              More
-              <ChevronDown
-                className={`w-4 h-4 transition-transform ${
-                  dropdownOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            {dropdownOpen && (
-              <ul
-                role="menu"
-                className="absolute right-0 mt-2 w-44 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-2 z-50"
-              >
-                {moreItems.map((item) => (
-                  <li key={item.href} role="none">
-                    <Link
-                      href={item.href}
-                      onClick={handleNavClick}
-                      role="menuitem"
-                      className={`flex items-center px-4 py-2 text-sm w-full text-left ${
-                        isActive(item.href)
-                          ? "text-black dark:text-white font-semibold bg-gray-100 dark:bg-gray-700"
-                          : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      }`}
-                    >
-                      {item.icon}
-                      <span>{item.label}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </li>
 
           {/* Dark mode toggle */}
           <li>
@@ -236,7 +180,7 @@ export default function Navbar() {
         </ul>
 
         {/* Mobile controls */}
-        <div className="md:hidden flex items-center gap-3">
+        <div className="lg:hidden flex items-center gap-3">
           <DarkModeToggle />
           <button
             onClick={() => setIsOpen((s) => !s)}
@@ -264,10 +208,10 @@ export default function Navbar() {
 
         {/* Mobile menu */}
         {isOpen && (
-          <div className="md:hidden absolute left-0 right-0 top-full bg-white dark:bg-gray-900 shadow-lg z-40">
+          <div className="lg:hidden absolute left-0 right-0 top-full bg-white dark:bg-gray-900 shadow-lg z-40">
             <ul className="flex flex-col py-4 px-4 gap-2">
               {navItems.map((item) => (
-                <li key={item.href}>
+                <li key={item.label}>
                   <Link
                     href={item.href}
                     onClick={handleNavClick}
@@ -282,27 +226,8 @@ export default function Navbar() {
                   </Link>
                 </li>
               ))}
-
-              <li className="pt-2 border-t border-gray-200 dark:border-gray-800">
-                <div className="flex flex-col gap-1">
-                  {moreItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={handleNavClick}
-                      className={`flex items-center px-3 py-2 rounded-md transition-colors ${
-                        isActive(item.href)
-                          ? "text-black dark:text-white font-semibold bg-gray-100 dark:bg-gray-800"
-                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                      }`}
-                    >
-                      {item.icon}
-                      <span>{item.label}</span>
-                    </Link>
-                  ))}
-                </div>
-              </li>
             </ul>
+
           </div>
         )}
       </nav>

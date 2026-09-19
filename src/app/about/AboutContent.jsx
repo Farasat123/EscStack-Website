@@ -383,14 +383,14 @@ export default   function AboutUs() {
         </div>
       </section>
 
-      {/* Story Section */}
+      {/* Story Section — Animated Timeline */}
       <section
         ref={sectionRefs.story}
-        className="py-20 px-4 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm"
+        className="py-20 px-4 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm overflow-hidden"
       >
         <div className="container mx-auto max-w-6xl">
           <motion.div
-            className="text-center mb-16"
+            className="text-center mb-20"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -399,41 +399,85 @@ export default   function AboutUs() {
             <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-800 dark:text-white">
               Our Story
             </h2>
-            <div className="w-20 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto"></div>
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-xl mx-auto mt-2">
+              Key milestones that shaped who we are today
+            </p>
+            <div className="w-20 h-1 bg-gradient-to-r from-blue-600 to-purple-600 mx-auto mt-4"></div>
           </motion.div>
 
+          {/* Timeline container */}
           <div className="relative">
-            <div className="space-y-12">
-              {milestones.map((milestone, index) => (
-                <motion.div
-                  key={index}
-                  className="flex flex-col md:flex-row items-start"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <div className="md:w-1/4 mb-4 md:mb-0 flex items-center">
-                    <div className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 font-bold py-2 px-4 rounded-full inline-flex items-center">
-                      {milestone.icon}
-                      {milestone.year}
-                    </div>
-                  </div>
-                  <div className="md:w-3/4">
-                    <motion.div
-                      className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border-l-4 border-blue-500 dark:border-blue-400"
-                      whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                    >
-                      <p className="text-lg text-gray-800 dark:text-gray-200">
-                        {milestone.event}
-                      </p>
-                    </motion.div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+            {/* Vertical timeline line — center on md+, left on mobile */}
+            <div className="absolute left-6 md:left-1/2 md:-translate-x-px top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500/60 via-indigo-500/40 to-purple-500/60" />
 
-            <div className="absolute left-4 md:left-1/4 md:transform md:-translate-x-2 top-0 bottom-0 w-1 bg-blue-200 dark:bg-blue-800 -z-10 hidden md:block"></div>
+            <div className="space-y-16 md:space-y-20">
+              {milestones.map((milestone, index) => {
+                const isEven = index % 2 === 0;
+                /* Unique accent colors per milestone */
+                const accents = [
+                  { dot: "from-blue-500 to-indigo-500", border: "from-blue-500/60 via-indigo-400/40 to-blue-600/60", glow: "shadow-blue-500/20" },
+                  { dot: "from-green-500 to-emerald-500", border: "from-green-500/60 via-emerald-400/40 to-green-600/60", glow: "shadow-green-500/20" },
+                  { dot: "from-yellow-500 to-amber-500", border: "from-yellow-500/60 via-amber-400/40 to-yellow-600/60", glow: "shadow-yellow-500/20" },
+                  { dot: "from-cyan-500 to-teal-500", border: "from-cyan-500/60 via-teal-400/40 to-cyan-600/60", glow: "shadow-cyan-500/20" },
+                  { dot: "from-amber-500 to-orange-500", border: "from-amber-500/60 via-orange-400/40 to-amber-600/60", glow: "shadow-amber-500/20" },
+                ];
+                const accent = accents[index % accents.length];
+
+                return (
+                  <motion.div
+                    key={index}
+                    className={`relative flex flex-col md:flex-row items-start md:items-center ${
+                      isEven ? "md:flex-row" : "md:flex-row-reverse"
+                    }`}
+                    initial={{ opacity: 0, x: isEven ? -60 : 60 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, amount: 0.3 }}
+                    transition={{ duration: 0.7, delay: index * 0.12, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    {/* Timeline dot — center on md+, left on mobile */}
+                    <div className="absolute left-6 md:left-1/2 -translate-x-1/2 z-10">
+                      <div className={`relative w-5 h-5 rounded-full bg-gradient-to-br ${accent.dot} shadow-lg ${accent.glow} ring-4 ring-white dark:ring-gray-800`}>
+                        {/* Pulsing ring */}
+                        <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${accent.dot} animate-ping opacity-30`} />
+                      </div>
+                    </div>
+
+                    {/* Card side — takes half width on desktop */}
+                    <div className={`w-full md:w-[calc(50%-2rem)] pl-16 md:pl-0 ${isEven ? "md:pr-12 md:text-right" : "md:pl-12 md:text-left"}`}>
+                      <motion.div
+                        className="story-card group"
+                        whileHover={{ y: -8, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } }}
+                      >
+                        {/* Gradient border wrapper */}
+                        <div className={`rounded-2xl p-[1.5px] bg-gradient-to-br ${accent.border} transition-all duration-400 group-hover:shadow-xl group-hover:${accent.glow}`}>
+                          <div className="relative rounded-[calc(1rem-1.5px)] overflow-hidden bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl p-6 md:p-8">
+                            {/* Subtle gradient overlay */}
+                            <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${accent.dot} opacity-[0.04] group-hover:opacity-[0.08] transition-opacity duration-400`} />
+
+                            {/* Year badge */}
+                            <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r ${accent.dot} text-white text-sm font-bold shadow-md mb-4`}>
+                              {milestone.icon}
+                              <span>{milestone.year}</span>
+                            </div>
+
+                            {/* Event text */}
+                            <p className="relative text-lg md:text-xl text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
+                              {milestone.event}
+                            </p>
+
+                            {/* Hover reveal: decorative bottom bar */}
+                            <div className={`mt-5 h-0.5 rounded-full bg-gradient-to-r ${accent.dot} opacity-0 group-hover:opacity-100 transform scale-x-0 group-hover:scale-x-100 transition-all duration-500 origin-left`} />
+                          </div>
+                        </div>
+                      </motion.div>
+                    </div>
+
+                    {/* Empty spacer for the other side */}
+                    <div className="hidden md:block md:w-[calc(50%-2rem)]" />
+                  </motion.div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
@@ -471,14 +515,14 @@ export default   function AboutUs() {
             {[
               {
                 id: 1,
-                name: "Ayaz Hussain",
+                name: "Farasat Abbas",
                 role: "Founder & CEO",
                 bio: "Visionary leader driving innovation and strategic growth for the company.",
                 social: {
-                  linkedin: "https://www.linkedin.com/in/ayaz-hussain-cs/",
-                  github: "https://github.com/ayaz7964",
+                  linkedin: true,
+                  github: true,
                 },
-                image: "/ayaz.png",
+                image: "/Farasat.JPG",
               },
               {
                 id: 2,
@@ -486,8 +530,8 @@ export default   function AboutUs() {
                 role: "Co-Founder & CTO",
                 bio: "Technology architect passionate about scalable systems and AI-driven products.",
                 social: {
-                  linkedin: "https://www.linkedin.com/in/rajput-rizwan/",
-                  github: "https://github.com/rajputrizwan",
+                  linkedin: true,
+                  github: true,
                 },
                 image: "/rizwan.png",
               },
@@ -497,9 +541,8 @@ export default   function AboutUs() {
                 role: "Co-Founder & CPO",
                 bio: "Creative mind shaping intuitive user experiences and visionary product design.",
                 social: {
-                  linkedin:
-                    "https://www.linkedin.com/in/muhammad-tayyab-bhutto/",
-                  github: "https://github.com/Muhammad-Tayyab-Bhutto",
+                  linkedin: true,
+                  github: true,
                 },
                 image: "/meer.png",
               },
@@ -509,8 +552,8 @@ export default   function AboutUs() {
                 role: "Co-Founder & Chief AI Officer",
                 bio: "AI strategist leading intelligent automation and ethical model deployment.",
                 social: {
-                  linkedin: "https://www.linkedin.com/in/meer-khalil/",
-                  github: "https://github.com/meer-khalil",
+                  linkedin: true,
+                  github: true,
                 },
                 image: "/khalil.png",
               },
@@ -544,12 +587,9 @@ export default   function AboutUs() {
                     whileHover={{ opacity: 1 }}
                   >
                     <div className="flex space-x-4">
-                      {Object.entries(member.social).map(([platform, url]) => (
-                        <motion.a
+                      {Object.keys(member.social).map((platform) => (
+                        <motion.div
                           key={platform}
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
                           className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white backdrop-blur-sm"
                           whileHover={{
                             scale: 1.2,
@@ -559,7 +599,7 @@ export default   function AboutUs() {
                           title={platform}
                         >
                           {socialIcons[platform]}
-                        </motion.a>
+                        </motion.div>
                       ))}
                     </div>
                   </motion.div>

@@ -209,3 +209,143 @@
     transform: none !important;
   }
 }
+
+/* ============================================================
+   SERVICE CARDS — Hover pop-up & sibling dimming
+   ============================================================ */
+
+/* Each card transitions smoothly */
+.service-card-outer {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.4s ease,
+              filter 0.4s ease;
+  will-change: transform, opacity, filter;
+  cursor: pointer;
+}
+
+/* Border wrapper also transitions */
+.service-card-border-wrap {
+  transition: box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              background 0.4s ease;
+}
+
+/* When ANY card in the grid is hovered, dim all cards */
+.services-grid-wrapper:hover .service-card-outer {
+  opacity: 0.45;
+  filter: blur(1.5px) brightness(0.85);
+  transform: scale(0.97);
+}
+
+/* The hovered card POPS UP — scale, lift, full clarity */
+.services-grid-wrapper .service-card-outer:hover {
+  opacity: 1;
+  filter: blur(0) brightness(1);
+  transform: scale(1.08) translateY(-14px);
+  z-index: 30;
+}
+
+/* Dramatic elevated shadow + neon glow on the hovered card */
+.service-card-outer:hover .service-card-border-wrap {
+  box-shadow:
+    0 30px 80px rgba(59, 130, 246, 0.25),
+    0 12px 40px rgba(99, 102, 241, 0.18),
+    0 0 20px rgba(99, 102, 241, 0.15),
+    0 0 60px rgba(139, 92, 246, 0.08);
+  background: linear-gradient(135deg,
+    rgba(59, 130, 246, 1),
+    rgba(99, 102, 241, 0.95),
+    rgba(139, 92, 246, 1));
+}
+
+/* Icon scale on hover */
+.service-card-outer:hover .transform-gpu {
+  transform: scale(1.15);
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .service-card-outer {
+    transition: none !important;
+  }
+  .services-grid-wrapper:hover .service-card-outer {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+  .services-grid-wrapper .service-card-outer:hover {
+    transform: none;
+  }
+}
+
+/* ============================================================
+   PROCESS CARDS — Expand on hover
+   ============================================================ */
+
+/* Expandable content: collapsed by default */
+.process-card-expand {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.35s ease 0.05s;
+}
+
+.process-card-expand > div {
+  overflow: hidden;
+}
+
+/* Expand on card hover */
+.process-card:hover .process-card-expand {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+/* Card lift + shadow on hover */
+.process-card-outer {
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.4s ease,
+              filter 0.4s ease;
+}
+
+.process-card-outer:hover {
+  transform: translateY(-8px);
+  z-index: 10;
+}
+
+/* Sibling dimming: when any card is hovered, dim the rest */
+.process-grid:hover .process-card-outer {
+  opacity: 0.55;
+  filter: blur(0.5px);
+}
+
+.process-grid .process-card-outer:hover {
+  opacity: 1;
+  filter: blur(0);
+}
+
+/* Border glow on hover */
+.process-card:hover {
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow:
+    0 20px 50px rgba(59, 130, 246, 0.12),
+    0 8px 24px rgba(99, 102, 241, 0.08);
+}
+
+/* Respect reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .process-card-expand {
+    transition: none !important;
+  }
+  .process-card-outer {
+    transition: none !important;
+  }
+  .process-grid:hover .process-card-outer {
+    opacity: 1;
+    filter: none;
+  }
+  /* Always show expand content when motion is reduced */
+  .process-card-expand {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+}

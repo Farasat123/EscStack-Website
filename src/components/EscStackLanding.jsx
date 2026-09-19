@@ -1199,7 +1199,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -1368,21 +1368,45 @@ const PROCESS = [
     step: 1,
     title: "Discovery & Scope",
     copy: "We clarify goals, risks, and success metrics. Outcome: prioritized backlog and delivery roadmap.",
+    details: [
+      "Stakeholder interviews & goal alignment",
+      "Technical feasibility audit",
+      "Prioritized backlog & roadmap",
+    ],
+    duration: "1–2 weeks",
   },
   {
     step: 2,
     title: "Design & Architecture",
     copy: "We propose a modern architecture, pick the right stack, and craft prototype flows.",
+    details: [
+      "System design & tech stack selection",
+      "Interactive prototypes & wireframes",
+      "API contracts & data modeling",
+    ],
+    duration: "2–3 weeks",
   },
   {
     step: 3,
     title: "Build & Iterate",
     copy: "Agile delivery with demoable increments, CI/CD, and quality gates at each stage.",
+    details: [
+      "Sprint-based development cycles",
+      "Automated CI/CD pipelines",
+      "Code reviews & quality gates",
+    ],
+    duration: "6–12 weeks",
   },
   {
     step: 4,
     title: "Launch & Scale",
     copy: "Observability, automated rollouts, SRE practices, and growth experiments post-launch.",
+    details: [
+      "Production deployment & monitoring",
+      "Performance optimization & SLOs",
+      "Post-launch support & iteration",
+    ],
+    duration: "Ongoing",
   },
 ];
 
@@ -1712,6 +1736,175 @@ function CaseCarousel() {
 }
 
 /* ------------------------------------------------------------
+    Stacking cards — feature data
+  ------------------------------------------------------------ */
+const STACKING_FEATURES = [
+  {
+    badge: "Design → Dev",
+    title: "Design systems & front-end engineering for consistent products",
+    description:
+      "We translate product strategy into living design systems and production-ready components. Our teams deliver design tokens, accessible UI primitives and developer tooling so your product ships faster with consistent UX across web and mobile.",
+    image:
+      "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=1600&auto=format&fit=crop",
+    imageAlt: "Design and front-end engineering workshop",
+    primaryLink: { href: "/work", label: "See case studies" },
+    secondaryLink: { href: "/services", label: "Our design process" },
+    accentColor: "blue",
+  },
+  {
+    badge: "AI · Data",
+    title: "Practical AI & data engineering that powers product value",
+    description:
+      "We integrate LLMs, retrieval-augmented systems, and instrumentation so you get measurable outcomes — faster time-to-value, safer behavior, and analytics that prove ROI. Production-ready ML pipelines and guardrails are standard.",
+    image:
+      "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1600&auto=format&fit=crop",
+    imageAlt: "AI and data engineering console",
+    primaryLink: { href: "/services#ai", label: "AI services" },
+    secondaryLink: { href: "/contact", label: "Prototype with us" },
+    accentColor: "indigo",
+  },
+  {
+    badge: "DevOps · SRE",
+    title: "Reliable delivery—observability, SLOs & cost discipline",
+    description:
+      "We build resilient cloud platforms with CI/CD, infra-as-code, and SRE practices so your service meets SLAs and stays cost-efficient. Runbooks, monitoring and automated plays are built into every release.",
+    image:
+      "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=1600&auto=format&fit=crop",
+    imageAlt: "Cloud infrastructure and SRE",
+    primaryLink: { href: "/services#cloud", label: "See capabilities" },
+    secondaryLink: { href: "/contact", label: "Talk to an architect" },
+    accentColor: "purple",
+  },
+];
+
+/* Single stacking card — sticks to viewport, scales down as next card overlaps */
+function StackingCard({ feature, index, total }) {
+  const cardRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: cardRef,
+    offset: ["start start", "end start"],
+  });
+
+  /* As user scrolls past, the card scales down slightly and dims — creating depth */
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.92]);
+  const opacity = useTransform(scrollYProgress, [0, 0.6, 1], [1, 1, 0.6]);
+
+  /* Each successive card sticks a bit lower so the previous card's top peeks out */
+  const stickyTop = 80 + index * 28; // px — header offset + stagger
+
+  /* Alternate image position: even = left, odd = right */
+  const isEven = index % 2 === 0;
+
+  /* Gradient accents per card */
+  const gradients = {
+    blue: "from-blue-500/20 via-indigo-500/10 to-transparent",
+    indigo: "from-indigo-500/20 via-purple-500/10 to-transparent",
+    purple: "from-purple-500/20 via-pink-500/10 to-transparent",
+  };
+
+  const borderGradients = {
+    blue: "from-blue-500/50 via-indigo-400/40 to-blue-600/50",
+    indigo: "from-indigo-500/50 via-purple-400/40 to-indigo-600/50",
+    purple: "from-purple-500/50 via-pink-400/40 to-purple-600/50",
+  };
+
+  return (
+    <div
+      ref={cardRef}
+      className="h-[85vh] md:h-[80vh]"
+      style={{ position: "relative" }}
+    >
+      <motion.div
+        style={{ scale, opacity, top: `${stickyTop}px` }}
+        className="sticky w-full"
+      >
+        {/* Gradient border wrapper */}
+        <div
+          className={`rounded-3xl p-[1.5px] bg-gradient-to-br ${borderGradients[feature.accentColor]} shadow-2xl`}
+        >
+          <div
+            className={`relative rounded-[calc(1.5rem-1.5px)] overflow-hidden bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl`}
+          >
+            {/* Subtle gradient overlay */}
+            <div
+              className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${gradients[feature.accentColor]} opacity-40`}
+            />
+
+            <div
+              className={`relative grid md:grid-cols-2 gap-6 md:gap-10 p-6 md:p-10 lg:p-14 items-center min-h-[420px] md:min-h-[480px]`}
+            >
+              {/* Image */}
+              <div
+                className={`rounded-2xl overflow-hidden ${
+                  isEven ? "md:order-1" : "md:order-2"
+                }`}
+              >
+                <img
+                  src={feature.image}
+                  alt={feature.imageAlt}
+                  className="w-full h-[260px] md:h-[360px] object-cover rounded-2xl"
+                  loading="lazy"
+                />
+              </div>
+
+              {/* Content */}
+              <div
+                className={`space-y-5 ${
+                  isEven ? "md:order-2" : "md:order-1"
+                }`}
+              >
+                <Badge className="rounded-full border text-sm px-3 py-1 bg-transparent text-blue-600 dark:text-blue-300 border-blue-100 dark:border-blue-800">
+                  {feature.badge}
+                </Badge>
+
+                <h3 className="text-2xl md:text-3xl font-semibold text-slate-900 dark:text-white leading-tight">
+                  {feature.title}
+                </h3>
+
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed max-w-xl">
+                  {feature.description}
+                </p>
+
+                <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                  <Link
+                    href={feature.primaryLink.href}
+                    className={`${primaryBtn} ${primaryGradient} w-full sm:w-auto`}
+                    aria-label={feature.primaryLink.label}
+                  >
+                    {feature.primaryLink.label}
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+
+                  <Link
+                    href={feature.secondaryLink.href}
+                    className="
+                      inline-flex items-center justify-center px-6 py-3 rounded-full
+                      text-sm font-semibold transition
+                      w-full sm:w-auto
+                      bg-white text-slate-900 border border-slate-200 hover:bg-slate-50
+                      dark:bg-gray-800 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700
+                      focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-300
+                    "
+                    aria-label={feature.secondaryLink.label}
+                  >
+                    {feature.secondaryLink.label}
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Card number indicator */}
+            <div className="absolute top-5 right-6 text-xs font-mono text-gray-400 dark:text-gray-500">
+              {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------
     Main page
   ------------------------------------------------------------ */
 export default function EscStackLanding() {
@@ -1883,7 +2076,7 @@ export default function EscStackLanding() {
                         <div className="text-sm text-gray-500 dark:text-gray-400">Clients</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-lg font-semibold text-gray-900 dark:text-white">5V</div>
+                        <div className="text-lg font-semibold text-gray-900 dark:text-white">5+</div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">Years</div>
                       </div>
                     </div>
@@ -1943,7 +2136,7 @@ export default function EscStackLanding() {
               aria-roledescription="feature"
               aria-label={v.title}
               key={i}
-              className="relative overflow-hidden rounded-2xl border border-transparent bg-gradient-to-br from-white/40 to-white/10 dark:from-gray-800/50 dark:to-gray-800/30 backdrop-blur-md p-0 transition-transform transform-gpu hover:-translate-y-2 focus-within:-translate-y-2 will-change-transform duration-300"
+              className="relative overflow-hidden rounded-2xl border border-transparent bg-gradient-to-br from-white/40 to-white/10 dark:from-gray-800/50 dark:to-gray-800/30 backdrop-blur-md p-0 transition-[transform,border-color,box-shadow] ease-out transform-gpu hover:-translate-y-1 hover:border-blue-300 dark:hover:border-blue-400 hover:shadow-[0_14px_34px_rgba(96,165,250,0.16)] focus-within:-translate-y-1 will-change-transform duration-700"
             >
               {/* vertical accent bar using blue->purple gradient */}
               <div
@@ -2006,92 +2199,84 @@ export default function EscStackLanding() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+        <div className="services-grid-wrapper grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
           {SERVICES.map((s, i) => (
-            <motion.div key={s.title} {...fadeUp(i * 0.05)}>
+            <motion.div key={s.title} {...fadeUp(i * 0.05)} className="service-card-outer">
               {(() => {
                 const titleId = `service-${i}-title`;
                 return (
-                  <Card
-                    role="article"
-                    aria-labelledby={titleId}
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      // allow Enter / Space to activate primary action unless an interactive element is focused
-                      const k = e.key;
-                      if (k === "Enter" || k === " ") {
-                        const tag = (e.target && e.target.tagName) || "";
-                        if (!["BUTTON", "A", "INPUT", "TEXTAREA", "SELECT"].includes(tag)) {
-                          e.preventDefault();
-                          // use location navigation to avoid nested Link/Button issues
-                          if (typeof window !== "undefined") window.location.href = "/contact";
-                        }
-                      }
-                    }}
-                    className="group relative h-full rounded-2xl overflow-hidden bg-gradient-to-br from-white/60 to-slate-50 dark:from-gray-900/40 dark:to-gray-900/30 backdrop-blur-md border border-white/6 dark:border-gray-800/40 shadow-[0_12px_50px_rgba(14,116,144,0.06)] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/30 motion-safe:transform-gpu motion-safe:transition-transform group-hover:motion-safe:-translate-y-1"
+                  /* Gradient border wrapper — gives a visible border on ALL sides */
+                  <div
+                    className="service-card-border-wrap relative rounded-2xl p-[1.5px] bg-gradient-to-br from-blue-500/70 via-indigo-500/60 to-purple-500/70 transition-all duration-300 ease-out h-full"
                   >
-                    {/* vertical accent bar using blue -> purple gradient */}
-                    <div
-                      className="absolute left-0 top-0 h-full w-1 rounded-r-full"
-                      aria-hidden="true"
-                      style={{
-                        background:
-                          "linear-gradient(180deg, rgba(59,130,246,0.95), rgba(99,102,241,0.9), rgba(139,92,246,0.95))",
+                    <Card
+                      role="article"
+                      aria-labelledby={titleId}
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        const k = e.key;
+                        if (k === "Enter" || k === " ") {
+                          const tag = (e.target && e.target.tagName) || "";
+                          if (!["BUTTON", "A", "INPUT", "TEXTAREA", "SELECT"].includes(tag)) {
+                            e.preventDefault();
+                            if (typeof window !== "undefined") window.location.href = "/contact";
+                          }
+                        }
                       }}
-                    />
-
-                    <CardHeader className="p-6 md:p-8">
-                      <div className="flex items-start gap-4">
-                        <div className="flex items-center justify-center rounded-lg p-3 bg-gradient-to-tr from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 text-blue-600 dark:text-blue-300 shadow-sm transition-shadow group-hover:shadow-[0_30px_100px_rgba(99,102,241,0.12)] w-12 h-12 ring-1 ring-blue-300/8 relative">
-                          <span className="sr-only">{s.title} icon</span>
-                          <div className="transform-gpu transition-transform group-hover:scale-105" aria-hidden="true">
-                            {s.icon}
+                      className="relative h-full rounded-[calc(1rem-1.5px)] overflow-hidden bg-gradient-to-br from-white/90 to-slate-50 dark:from-gray-900/95 dark:to-gray-900/85 backdrop-blur-md shadow-[0_12px_50px_rgba(14,116,144,0.06)] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/30"
+                    >
+                      <CardHeader className="p-6 md:p-8">
+                        <div className="flex items-start gap-4">
+                          <div className="flex items-center justify-center rounded-lg p-3 bg-gradient-to-tr from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 text-blue-600 dark:text-blue-300 shadow-sm transition-shadow w-12 h-12 ring-1 ring-blue-300/8 relative">
+                            <span className="sr-only">{s.title} icon</span>
+                            <div className="transform-gpu transition-transform duration-300" aria-hidden="true">
+                              {s.icon}
+                            </div>
+                            {/* inner glow */}
+                            <div className="pointer-events-none absolute inset-0 rounded-lg blur-[14px] opacity-60 mix-blend-screen bg-gradient-to-tr from-blue-300/30 to-purple-400/6" />
                           </div>
-                          {/* inner glow */}
-                          <div className="pointer-events-none absolute inset-0 rounded-lg blur-[14px] opacity-60 mix-blend-screen bg-gradient-to-tr from-blue-300/30 to-purple-400/6" />
+
+                          <div className="flex-1 min-w-0">
+                            <CardTitle id={titleId} className="text-lg md:text-xl font-semibold text-slate-900 dark:text-white">
+                              {s.title}
+                            </CardTitle>
+                            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                              {s.desc}
+                            </p>
+                          </div>
                         </div>
+                      </CardHeader>
 
-                        <div className="flex-1 min-w-0">
-                          <CardTitle id={titleId} className="text-lg md:text-xl font-semibold text-slate-900 dark:text-white">
-                            {s.title}
-                          </CardTitle>
-                          <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                            {s.desc}
-                          </p>
+                      <CardContent className="p-6 md:p-6 pt-0 space-y-4">
+                        <ul className="grid gap-2 text-sm">
+                          {s.bullet.map((b) => (
+                            <li key={b} className="flex items-start gap-3">
+                              <span className="mt-0.5 text-blue-500 dark:text-blue-300">
+                                <CheckCircle2 className="h-4 w-4" />
+                              </span>
+                              <span className="text-gray-700 dark:text-gray-200 text-sm">{b}</span>
+                            </li>
+                          ))}
+                        </ul>
+
+                        <div className="mt-4 border-t border-white/5 dark:border-gray-700 pt-3 flex items-center justify-between">
+                          <Link href="/services" className="text-sm font-medium text-blue-600 hover:text-indigo-600">
+                            Learn more →
+                          </Link>
+
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => (typeof window !== "undefined" ? (window.location.href = "/contact") : null)}
+                              className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-sm font-medium shadow-[0_14px_60px_rgba(59,130,246,0.14)] ring-1 ring-blue-500/20 focus-visible:ring-2 focus-visible:ring-blue-400/40 transition"
+                            >
+                              Talk to us
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    </CardHeader>
-
-                    <CardContent className="p-6 md:p-6 pt-0 space-y-4">
-                      <ul className="grid gap-2 text-sm">
-                        {s.bullet.map((b) => (
-                          <li key={b} className="flex items-start gap-3">
-                            <span className="mt-0.5 text-blue-500 dark:text-blue-300">
-                              <CheckCircle2 className="h-4 w-4" />
-                            </span>
-                            <span className="text-gray-700 dark:text-gray-200 text-sm">{b}</span>
-                          </li>
-                        ))}
-                      </ul>
-
-                      <div className="mt-4 border-t border-white/5 dark:border-gray-700 pt-3 flex items-center justify-between">
-                        <Link href="/services" className="text-sm font-medium text-blue-600 hover:text-indigo-600">
-                          Learn more →
-                        </Link>
-
-                        <div className="flex items-center gap-2">
-                          {/* Use an inline button that navigates on click (avoids nesting Link + Button) */}
-                          <button
-                            type="button"
-                            onClick={() => (typeof window !== "undefined" ? (window.location.href = "/contact") : null)}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-sm font-medium shadow-[0_14px_60px_rgba(59,130,246,0.14)] ring-1 ring-blue-500/20 focus-visible:ring-2 focus-visible:ring-blue-400/40 transition"
-                          >
-                            Talk to us
-                          </button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
+                  </div>
                 );
               })()}
             </motion.div>
@@ -2112,238 +2297,40 @@ export default function EscStackLanding() {
 
 
 
-      {/* ------------------------- ALTERNATING FEATURES ------------------------ */}
 
+      {/* -------------------- STACKING FEATURE CARDS -------------------- */}
 
+      <section className="relative container mx-auto px-6 md:px-10 pt-16 pb-8">
+        {/* Section heading */}
+        <motion.div {...fadeUp()} className="relative max-w-2xl mx-auto text-center mb-12">
+          <div className="pointer-events-none absolute -top-8 -left-10 w-44 h-44 rounded-full bg-gradient-to-br from-blue-400/20 to-indigo-400/12 blur-3xl mix-blend-screen opacity-50" />
+          <h2 className="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-400 leading-snug">
+            What we build
+          </h2>
+          <p className="text-lg text-gray-700 dark:text-gray-300 mt-3">
+            Scroll to explore our core capabilities — each card stacks as you go.
+          </p>
+        </motion.div>
 
-      <section className="container mx-auto px-6 md:px-10 py-16 space-y-16">
-        {/* Feature A */}
-        <div className="grid md:grid-cols-2 gap-8 items-center">
-          <motion.div {...(fadeUp ? fadeUp() : {})} className="rounded-2xl overflow-hidden">
-            <img
-              src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=1600&auto=format&fit=crop"
-              alt="Design and front-end engineering workshop"
-              className="w-full h-[360px] object-cover rounded-2xl border border-gray-200 dark:border-gray-700"
-              loading="lazy"
+        {/* Stacking cards container */}
+        <div className="relative">
+          {STACKING_FEATURES.map((feature, i) => (
+            <StackingCard
+              key={feature.badge}
+              feature={feature}
+              index={i}
+              total={STACKING_FEATURES.length}
             />
-          </motion.div>
-
-          <motion.div {...(fadeUp ? fadeUp(0.07) : {})} className="space-y-4">
-            <Badge className="rounded-full border text-sm px-3 py-1 bg-transparent text-blue-600 dark:text-blue-300 border-blue-100 dark:border-blue-800">
-              Design → Dev
-            </Badge>
-
-            <h3 className="text-2xl md:text-3xl font-semibold text-slate-900 dark:text-white leading-tight">
-              Design systems & front-end engineering for consistent products
-            </h3>
-
-            <p className="text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl">
-              We translate product strategy into living design systems and production-ready components.
-              Our teams deliver design tokens, accessible UI primitives and developer tooling so your
-              product ships faster with consistent UX across web and mobile.
-            </p>
-
-            {/* <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
-              <Link
-                href="/work"
-                className={`${primaryBtn} ${primaryGradient} w-full sm:w-auto`}
-                aria-label="See case studies"
-              >
-                See case studies
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-
-              <Link
-                href="/services"
-                className={`${secondaryBtn} text-slate-900 dark:text-white border-slate-100 dark:border-white/10 w-full sm:w-auto`}
-                aria-label="Our design process"
-              >
-                Our design process
-              </Link>
-            </div> */}
-            <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
-  <Link
-    href="/work"
-    className={`${primaryBtn} ${primaryGradient} w-full sm:w-auto`}
-    aria-label="See case studies"
-  >
-    See case studies
-    <ArrowRight className="w-4 h-4" />
-  </Link>
-
-  {/* --- FIX: Replaced 'secondaryBtn' with explicit theme-compatible classes --- */}
-  <Link
-    href="/services"
-    className="
-      inline-flex items-center justify-center px-6 py-3 rounded-full 
-      text-sm font-semibold transition
-      w-full sm:w-auto
-      bg-white text-slate-900 border border-slate-200 hover:bg-slate-50
-      dark:bg-gray-800 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700
-      focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-300
-    "
-    aria-label="Our design process"
-  >
-    Our design process
-  </Link>
-</div>
-          </motion.div>
+          ))}
         </div>
 
-        {/* Feature B */}
-        <div className="grid md:grid-cols-2 gap-8 items-center">
-          <motion.div {...(fadeUp ? fadeUp(0.08) : {})} className="order-2 md:order-1 space-y-4">
-            <Badge className="rounded-full border text-sm px-3 py-1 bg-transparent text-blue-600 dark:text-blue-300 border-blue-100 dark:border-blue-800">
-              AI · Data
-            </Badge>
-
-            <h3 className="text-2xl md:text-3xl font-semibold text-slate-900 dark:text-white leading-tight">
-              Practical AI & data engineering that powers product value
-            </h3>
-
-            <p className="text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl">
-              We integrate LLMs, retrieval-augmented systems, and instrumentation so you get
-              measurable outcomes — faster time-to-value, safer behavior, and analytics that prove ROI.
-              Production-ready ML pipelines and guardrails are standard.
-            </p>
-
-            {/* <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
-              <Link
-                href="/services#ai"
-                className={`${primaryBtn} ${primaryGradient} w-full sm:w-auto`}
-                aria-label="AI services"
-              >
-                AI services
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-
-              <Link
-                href="/contact"
-                className={`${secondaryBtn} text-slate-900 dark:text-white border-slate-100 dark:border-white/10 w-full sm:w-auto`}
-                aria-label="Prototype with us"
-              >
-                Prototype with us
-              </Link>
-            </div> */}
-
-            <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
-  <Link
-    href="/services#ai"
-    className={`${primaryBtn} ${primaryGradient} w-full sm:w-auto`}
-    aria-label="AI services"
-  >
-    AI services
-    <ArrowRight className="w-4 h-4" />
-  </Link>
-
-  {/* --- FIX: Replaced 'secondaryBtn' with explicit theme-compatible classes --- */}
-  <Link
-    href="/contact"
-    className="
-      inline-flex items-center justify-center px-6 py-3 rounded-full 
-      text-sm font-semibold transition
-      w-full sm:w-auto
-      bg-white text-slate-900 border border-slate-200 hover:bg-slate-50
-      dark:bg-gray-800 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700
-      focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-300
-    "
-    aria-label="Prototype with us"
-  >
-    Prototype with us
-  </Link>
-</div>
-          </motion.div>
-
-          <motion.div {...(fadeUp ? fadeUp() : {})} className="order-1 md:order-2 rounded-2xl overflow-hidden">
-            <img
-              src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1600&auto=format&fit=crop"
-              alt="AI and data engineering console"
-              className="w-full h-[360px] object-cover rounded-2xl border border-gray-200 dark:border-gray-700"
-              loading="lazy"
-            />
-          </motion.div>
-        </div>
-
-        {/* Feature C */}
-        <div className="grid md:grid-cols-2 gap-8 items-center">
-          <motion.div {...(fadeUp ? fadeUp() : {})} className="rounded-2xl overflow-hidden">
-            <img
-              src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=1600&auto=format&fit=crop"
-              alt="Cloud infrastructure and SRE"
-              className="w-full h-[360px] object-cover rounded-2xl border border-gray-200 dark:border-gray-700"
-              loading="lazy"
-            />
-          </motion.div>
-
-          <motion.div {...(fadeUp ? fadeUp(0.07) : {})} className="space-y-4">
-            <Badge className="rounded-full border text-sm px-3 py-1 bg-transparent text-blue-600 dark:text-blue-300 border-blue-100 dark:border-blue-800">
-              DevOps · SRE
-            </Badge>
-
-            <h3 className="text-2xl md:text-3xl font-semibold text-slate-900 dark:text-white leading-tight">
-              Reliable delivery—observability, SLOs & cost discipline
-            </h3>
-
-            <p className="text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl">
-              We build resilient cloud platforms with CI/CD, infra-as-code, and SRE practices so your
-              service meets SLAs and stays cost-efficient. Runbooks, monitoring and automated plays
-              are built into every release.
-            </p>
-
-            {/* <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
-              <Link
-                href="/services#cloud"
-                className={`${primaryBtn} ${primaryGradient} w-full sm:w-auto`}
-                aria-label="See capabilities"
-              >
-                See capabilities
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-
-              <Link
-                href="/contact"
-                className={`${secondaryBtn} text-slate-900 dark:text-white border-slate-100 dark:border-white/10 w-full sm:w-auto`}
-                aria-label="Talk to an architect"
-              >
-                Talk to an architect
-              </Link>
-            </div> */}
-            <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
-  <Link
-    href="/services#cloud"
-    className={`${primaryBtn} ${primaryGradient} w-full sm:w-auto`}
-    aria-label="See capabilities"
-  >
-    See capabilities
-    <ArrowRight className="w-4 h-4" />
-  </Link>
-
-  {/* --- FIX: Replaced 'secondaryBtn' with explicit theme-compatible classes --- */}
-  <Link
-    href="/contact"
-    className="
-      inline-flex items-center justify-center px-6 py-3 rounded-full 
-      text-sm font-semibold transition
-      w-full sm:w-auto
-      bg-white text-slate-900 border border-slate-200 hover:bg-slate-50
-      dark:bg-gray-800 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700
-      focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-300
-    "
-    aria-label="Talk to an architect"
-  >
-    Talk to an architect
-  </Link>
-</div>
-          </motion.div>
-        </div>
-
-        {/* Section CTA (single, clear, primary action) */}
+        {/* Section CTA */}
         <div className="max-w-3xl mx-auto text-center mt-6">
           <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 mb-6">
-            Ready to build? Our senior pods design, ship and operate production software — let’s discuss your roadmap.
+            Ready to build? Our senior pods design, ship and operate production software — let's discuss your roadmap.
           </p>
 
-          {/* <div className="flex items-center justify-center gap-3">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               href="/contact"
               className={`${primaryBtn} ${primaryGradient} w-full sm:w-auto`}
@@ -2355,51 +2342,19 @@ export default function EscStackLanding() {
 
             <Link
               href="/work"
-              className={`${secondaryBtn} text-slate-900 dark:text-white border-slate-100 dark:border-white/10 hidden sm:inline-flex`}
+              className="
+                inline-flex items-center justify-center gap-3 px-6 py-3 rounded-full
+                text-sm font-semibold transition
+                w-full sm:w-auto
+                bg-white text-slate-900 border border-slate-200 hover:bg-slate-50
+                dark:bg-gray-800 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700
+                focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-300
+              "
               aria-label="View work"
             >
               View work
             </Link>
-          </div> */}
-
-          {/* --- UPDATED SNIPPET --- */}
-
-{/* FIX 1: Changed 'flex' to 'flex-col sm:flex-row'.
-  This stacks the buttons vertically on mobile screens (w-full)
-  and places them side-by-side on screens 'sm' and larger (w-auto).
-*/}
-<div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-  <Link
-    href="/contact"
-    className={`${primaryBtn} ${primaryGradient} w-full sm:w-auto`}
-    aria-label="Start a project"
-  >
-    Start a project
-    <ArrowRight className="w-4 h-4" />
-  </Link>
-
-  {/* FIX 2: Rebuilt the secondary button classes for responsiveness and theme-compatible styling.
-    - Removed 'hidden sm:inline-flex' and added 'w-full sm:w-auto' to match the primary button.
-    - Removed the base 'secondaryBtn' variable to apply consistent padding ('px-6 py-3') and 'justify-center'.
-    - Added 'bg-white' and 'dark:bg-gray-800' for the theme-compatible backgrounds.
-    - Added explicit 'border-slate-200' and 'dark:border-gray-700'.
-    - Added 'hover:bg-slate-50' and 'dark:hover:bg-gray-700' for hover states.
-  */}
-  <Link
-    href="/work"
-    className="
-      inline-flex items-center justify-center gap-3 px-6 py-3 rounded-full 
-      text-sm font-semibold transition
-      w-full sm:w-auto
-      bg-white text-slate-900 border border-slate-200 hover:bg-slate-50
-      dark:bg-gray-800 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700
-      focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-300
-    "
-    aria-label="View work"
-  >
-    View work
-  </Link>
-</div>
+          </div>
         </div>
       </section>
 
@@ -2461,16 +2416,20 @@ export default function EscStackLanding() {
           </p>
         </div>
 
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="process-grid mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
           {PROCESS.map((p, i) => (
-            <motion.div key={p.step} {...fadeUp(i * 0.05)}>
-              <Card
+            <motion.div key={p.step} {...fadeUp(i * 0.05)} className="process-card-outer">
+              <div
                 className={
-                  "relative overflow-visible h-full rounded-2xl border border-transparent dark:border-gray-800/40 backdrop-blur-md " +
-                  "focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-400/25 transition-transform hover:-translate-y-1 motion-safe:transform-gpu motion-safe:duration-300"
+                  "process-card group relative overflow-visible rounded-2xl " +
+                  "bg-white dark:bg-gray-900/80 backdrop-blur-md " +
+                  "border border-gray-200/80 dark:border-gray-800/60 " +
+                  "shadow-sm hover:shadow-xl " +
+                  "transition-all duration-400 ease-out " +
+                  "motion-safe:transform-gpu"
                 }
               >
-                {/* diagonal ribbon with step number (responsive). Keep an sr-only label for screen readers. */}
+                {/* Step number ribbon */}
                 <div className="absolute -top-3 left-3 md:-top-4 md:left-4 -rotate-12 z-20">
                   <span
                     className="inline-flex items-center text-white text-sm md:text-base font-extrabold px-2 md:px-3 py-0.5 md:py-1 rounded-md shadow-lg ring-1 ring-white/30 border border-white/10"
@@ -2484,21 +2443,46 @@ export default function EscStackLanding() {
                   </span>
                 </div>
 
-                <CardHeader className="items-start gap-4 p-6 md:p-8">
-                  <div className="flex-1">
-                    <CardTitle className="text-lg md:text-xl font-semibold text-slate-900 dark:text-white">
-                      {p.title}
-                    </CardTitle>
-                    <div className="text-sm md:text-base text-gray-600 dark:text-gray-300 mt-1">
-                      {p.copy}
+                {/* Always-visible content */}
+                <div className="p-6 md:p-8">
+                  <h3 className="text-lg md:text-xl font-semibold text-slate-900 dark:text-white">
+                    {p.title}
+                  </h3>
+                  <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 mt-1">
+                    {p.copy}
+                  </p>
+                </div>
+
+                {/* Expandable content — hidden by default, slides open on hover */}
+                <div className="process-card-expand">
+                  <div className="px-6 md:px-8 pb-6 md:pb-8">
+                    {/* Divider */}
+                    <div className="h-px bg-gradient-to-r from-transparent via-blue-300/40 dark:via-blue-500/30 to-transparent mb-4" />
+
+                    {/* Detail bullets */}
+                    <ul className="space-y-2">
+                      {p.details.map((d) => (
+                        <li key={d} className="flex items-start gap-2.5 text-sm">
+                          <span className="mt-0.5 text-blue-500 dark:text-blue-400 shrink-0">
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                          </span>
+                          <span className="text-gray-700 dark:text-gray-200">{d}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {/* Duration badge */}
+                    <div className="mt-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200/50 dark:border-blue-700/30">
+                      <span className="text-xs font-semibold text-blue-700 dark:text-blue-300 tracking-wide uppercase">
+                        {p.duration}
+                      </span>
                     </div>
                   </div>
-                </CardHeader>
+                </div>
 
-                <CardContent className="p-0" aria-hidden="true">
-                  {/* intentionally empty as per original */}
-                </CardContent>
-              </Card>
+                {/* Bottom gradient accent — visible on hover */}
+                <div className="absolute bottom-0 left-0 right-0 h-1 rounded-b-2xl bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-400" />
+              </div>
             </motion.div>
           ))}
         </div>
